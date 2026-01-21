@@ -439,6 +439,13 @@ def parse_cli_args():
         required=False,
         default=True,
     )
+    parser.add_argument(
+        "--custom_bash_cmds",
+        help="Custom bash commands to run before the experiment. Defaults to None",
+        type=str,
+        required=False,
+        default="",
+    )
 
     return parser
 

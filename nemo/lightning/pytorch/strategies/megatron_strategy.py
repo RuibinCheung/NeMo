@@ -394,6 +394,8 @@ class MegatronStrategy(DDPStrategy, io.IOMixin):
         else:
             raise ValueError(f"Invalid DDP type: {ddp}")
 
+        _logger.warning("!!!!!!!!!!!!!!!!!! patched NeMo !!!!!!!!!!!!!!!!!!")
+
         self._fsdp = None
 
         use_custom_fsdp = getattr(self.ddp_config, "use_custom_fsdp", False)
@@ -413,32 +415,20 @@ class MegatronStrategy(DDPStrategy, io.IOMixin):
             raise NotImplementedError("PyTorch FSDP2 is not supported with MegatronParallel.")
         elif fsdp == "megatron":
             self._fsdp = fsdp
-            if hasattr(self.ddp_config, "use_custom_fsdp") and not use_custom_fsdp:
+            if hasattr(self.ddp_config, "use_megatron_fsdp") and not use_megatron_fsdp:
+                self.ddp_config.use_megatron_fsdp = True
+                logging.warning("Setting ddp_config.use_megatron_fsdp to True for MCore FSDP.")
+            elif hasattr(self.ddp_config, "use_custom_fsdp") and not use_custom_fsdp:
                 self.ddp_config.use_custom_fsdp = True
                 logging.warning("Setting ddp_config.use_custom_fsdp to True for MCore FSDP.")
                 logging.warning(
                     "Deprecation Notice: `use_custom_fsdp` will be deprecated in M-Core 0.14. "
                     "Please use `use_megatron_fsdp` instead."
                 )
-            elif hasattr(self.ddp_config, "use_megatron_fsdp") and not use_megatron_fsdp:
-                self.ddp_config.use_megatron_fsdp = True
-                logging.warning("Setting ddp_config.use_megatron_fsdp to True for MCore FSDP.")
             logging.info("FSDP option is set to MCore. Using MCore's Custom FSDP for DP.")
         elif fsdp is not None:
             raise ValueError(f'Invalid DDP type: {fsdp}, please choose from ["megatron", "pytorch"].')
-
-        if ddp == "megatron":
-            self.ddp_config = DistributedDataParallelConfig(check_for_nan_in_grad=True)
-        elif isinstance(ddp, DistributedDataParallelConfig):
-            self.ddp_config = ddp
-        elif ddp == "pytorch":
-            if self._fsdp is not None:
-                raise ValueError("Please set ddp to megatron to use FSDP.")
-            self.ddp_config = None
-            self.no_ddp_communication_hook = False
-        else:
-            raise ValueError(f"Invalid DDP type: {ddp}")
-
+ 
         if self.ckpt_load_optimizer and self.ckpt_load_main_params:
             raise ValueError("ckpt_load_optimizer and ckpt_load_main_params cannot be both set to True.")
 
