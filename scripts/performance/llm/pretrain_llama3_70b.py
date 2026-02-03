@@ -201,7 +201,7 @@ if __name__ == "__main__":
         wandb_key=args.wandb_key,
         network='sharp' if use_sharp else None,
         additional_slurm_params=additional_slurm_params,
-        custom_bash_cmds=args.custom_bash_cmds.split(';'),
+        custom_bash_cmds=None if args.custom_bash_cmds == '' else args.custom_bash_cmds.split(';'),
     )
 
     plugins = [build_perf_env_plugin(args, pp_size=pp_size, user_buffer_registration=use_user_buffer_registration)]
