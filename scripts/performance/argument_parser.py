@@ -446,6 +446,20 @@ def parse_cli_args():
         required=False,
         default="",
     )
+    parser.add_argument(
+        "--enable_torch_profiler",
+        help="Enable PyTorch profiler. Disabled by default",
+        action="store_true",
+        required=False,
+        default=False,
+    )
+    parser.add_argument(
+        "--torch_profiler_max_steps",
+        type=int,
+        help="Maximum number of steps to profile. Defaults to 6",
+        required=False,
+        default=5,
+    )
 
     return parser
 

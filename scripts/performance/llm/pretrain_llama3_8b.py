@@ -19,6 +19,7 @@ import nemo_run as run
 from nemo.collections.common.tokenizers.tokenizer_utils import get_nmt_tokenizer
 from nemo.collections.llm.recipes.llama3_8b import pretrain_recipe
 from nemo.lightning.run.plugins import MemoryProfilePlugin, NsysPlugin
+from nemo.lightning.pytorch.callbacks.pytorch_profiler import PytorchProfilerCallback
 
 from ..argument_parser import parse_additional_slurm_params, parse_cli_args
 from ..executors import slurm_executor
@@ -152,6 +153,22 @@ if __name__ == "__main__":
 
     exp_config = f"{num_nodes}nodes_tp{tp_size}_pp{pp_size}_cp{cp_size}_vp{vp_size}_{mbs}mbs_{gbs}gbs"
     exp_name = f"{splitext(basename(__file__))[0]}_{args.compute_dtype}_{exp_config}"
+
+    custom_mounts = args.custom_mounts
+    if args.enable_torch_profiler:
+        import os
+        exp_path = os.path.join(args.log_dir, exp_name)
+        trace_dir = os.path.join(exp_path, "traces")
+        os.makedirs(trace_dir, exist_ok=True)
+        profiler_cb = run.Config(PytorchProfilerCallback, 
+            start_step=1,
+            end_step=args.torch_profiler_max_steps,
+            warmup_steps=2,
+            active_steps=args.torch_profiler_max_steps,
+            trace_dir=trace_dir)
+        recipe.trainer.callbacks.append(profiler_cb)
+
+        custom_mounts.append(trace_dir)
 
     executor = slurm_executor(
         args.gpu.lower(),
