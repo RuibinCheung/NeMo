@@ -193,10 +193,10 @@ if __name__ == "__main__":
         trace_dir = os.path.join(exp_path, "traces")
         os.makedirs(trace_dir, exist_ok=True)
         profiler_cb = run.Config(PytorchProfilerCallback, 
-            start_step=1,
-            end_step=args.torch_profiler_max_steps,
-            warmup_steps=2,
-            active_steps=args.torch_profiler_max_steps,
+            start_step=args.torch_profiler_start_steps,
+            end_step=args.torch_profiler_end_steps,
+            warmup_steps=0,
+            active_steps=args.torch_profiler_end_steps - args.torch_profiler_start_steps,
             trace_dir=trace_dir)
         recipe.trainer.callbacks.append(profiler_cb)
 

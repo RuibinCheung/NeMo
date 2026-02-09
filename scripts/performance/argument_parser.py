@@ -454,11 +454,18 @@ def parse_cli_args():
         default=False,
     )
     parser.add_argument(
-        "--torch_profiler_max_steps",
+        "--torch_profiler_start_steps",
         type=int,
-        help="Maximum number of steps to profile. Defaults to 6",
+        help="Start step to profile. Defaults to 5",
         required=False,
         default=5,
+    )
+    parser.add_argument(
+        "--torch_profiler_end_steps",
+        type=int,
+        help="End step to profile. Defaults to 6",
+        required=False,
+        default=6,
     )
 
     return parser
