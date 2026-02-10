@@ -467,6 +467,13 @@ def parse_cli_args():
         required=False,
         default=6,
     )
+    parser.add_argument(
+        "--sequence_length",
+        type=int,
+        help="Sequence length. Defaults to 8192",
+        required=False,
+        default=8192,
+    )
 
     return parser
 
