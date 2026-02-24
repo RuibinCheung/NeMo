@@ -165,7 +165,9 @@ if __name__ == "__main__":
             end_step=args.torch_profiler_max_steps,
             warmup_steps=2,
             active_steps=args.torch_profiler_max_steps,
-            trace_dir=trace_dir)
+            trace_dir=trace_dir,
+            profiler_kwargs={'with_stack': True}, # enable stack trace collection for TraceLens
+        )
         recipe.trainer.callbacks.append(profiler_cb)
 
         custom_mounts.append(trace_dir)
